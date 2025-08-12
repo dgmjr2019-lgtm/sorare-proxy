@@ -82,7 +82,7 @@ app.get('/', (req, res) => {
   res.send('Sorare Proxy API is running. Use /test/:slug to query player data.');
 });
 
-// POST /player endpoint with slug validation
+// POST /player endpoint
 app.post('/player', async (req, res) => {
   const { slug } = req.body;
   if (!slug || typeof slug !== 'string' || slug.trim() === '') {
@@ -98,7 +98,7 @@ app.post('/player', async (req, res) => {
   }
 });
 
-// GET /test/:slug endpoint with slug validation
+// GET /test/:slug endpoint
 app.get('/test/:slug', async (req, res) => {
   const slug = req.params.slug;
   if (!slug || typeof slug !== 'string' || slug.trim() === '') {
@@ -110,17 +110,6 @@ app.get('/test/:slug', async (req, res) => {
     res.json(data);
   } catch (error) {
     console.error('Test endpoint error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// GET /test-mbappe route
-app.get('/test-mbappe', async (req, res) => {
-  try {
-    const data = await fetchPlayerData('kylian-mbappe');
-    res.json(data);
-  } catch (error) {
-    console.error('Test Mbappé endpoint error:', error);
     res.status(500).json({ error: error.message });
   }
 });
