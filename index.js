@@ -21,20 +21,24 @@ async function fetchFromSorare(query, variables) {
   });
 
   const text = await response.text();
+
+  let json;
   try {
-    const json = JSON.parse(text);
-    if (!response.ok) {
-      console.error(`Sorare API error: ${response.status} ${response.statusText}`, json);
-      const error = new Error(`Sorare API error: ${response.status}`);
-      error.status = response.status;
-      error.json = json;
-      throw error;
-    }
-    return json;
+    json = JSON.parse(text);
   } catch (err) {
     console.error('Failed to parse JSON from Sorare API:', text);
-    throw err;
+    throw new Error('Invalid JSON response from Sorare API');
   }
+
+  if (!response.ok) {
+    console.error(`Sorare API error: ${response.status} ${response.statusText}`, json);
+    const error = new Error(`Sorare API error: ${response.status}`);
+    error.status = response.status;
+    error.json = json;
+    throw error;
+  }
+
+  return json;
 }
 
 async function fetchPlayerData(slug) {
