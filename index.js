@@ -15,7 +15,7 @@ async function fetchFromSorare(query, variables) {
     headers: {
       'Content-Type': 'application/json',
       'User-Agent': 'sorare-proxy/1.0',
-      'apikey': process.env.SORARE_API_KEY,
+  'Authorization': `Bearer ${process.env.SORARE_API_KEY}`,  // Correct header here
     },
     body: JSON.stringify({ query, variables }),
   });
