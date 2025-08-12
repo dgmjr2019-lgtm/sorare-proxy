@@ -6,6 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Function to fetch player data from Sorare
 async function fetchPlayerData(slug) {
   const query = `
     query PlayerPriceHistory($slug: String!) {
@@ -28,8 +29,7 @@ async function fetchPlayerData(slug) {
     headers: {
       'Content-Type': 'application/json',
       'User-Agent': 'sorare-proxy/1.0',
-      // Uncomment if you have an API key
-      // 'apikey': process.env.SORARE_API_KEY
+      'apikey': process.env.SORARE_API_KEY // ✅ Now using env var for API key
     },
     body: JSON.stringify({ query, variables: { slug } }),
   });
@@ -44,6 +44,7 @@ async function fetchPlayerData(slug) {
   return data;
 }
 
+// Main POST endpoint
 app.post('/player', async (req, res) => {
   const { slug } = req.body;
   try {
@@ -55,6 +56,7 @@ app.post('/player', async (req, res) => {
   }
 });
 
+// Test GET endpoint for quick checks
 app.get('/test/:slug', async (req, res) => {
   try {
     const data = await fetchPlayerData(req.params.slug);
@@ -65,6 +67,7 @@ app.get('/test/:slug', async (req, res) => {
   }
 });
 
+// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
