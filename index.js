@@ -29,7 +29,7 @@ async function fetchPlayerData(slug) {
     headers: {
       'Content-Type': 'application/json',
       'User-Agent': 'sorare-proxy/1.0',
-      'apikey': process.env.SORARE_API_KEY // ✅ Now using env var for API key
+      'apikey': process.env.SORARE_API_KEY // Using env var for API key
     },
     body: JSON.stringify({ query, variables: { slug } }),
   });
@@ -43,6 +43,11 @@ async function fetchPlayerData(slug) {
   const data = await response.json();
   return data;
 }
+
+// Root route to avoid "Cannot GET /" error
+app.get('/', (req, res) => {
+  res.send('Sorare Proxy API is running. Use /test/:slug to query player data.');
+});
 
 // Main POST endpoint
 app.post('/player', async (req, res) => {
