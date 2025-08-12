@@ -6,8 +6,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Debug: confirm API key loaded
-console.log(process.env.SORARE_API_KEY ? 'API key loaded' : 'No API key found');
+// Debug: confirm API key loaded (redacted in logs)
+console.log('SORARE_API_KEY:', process.env.SORARE_API_KEY ? '[REDACTED]' : 'NOT SET');
 
 async function fetchFromSorare(query, variables) {
   const response = await fetch('https://api.sorare.com/graphql', {
@@ -15,7 +15,7 @@ async function fetchFromSorare(query, variables) {
     headers: {
       'Content-Type': 'application/json',
       'User-Agent': 'sorare-proxy/1.0',
-      'apikey': process.env.SORARE_API_KEY
+      'Authorization': `Bearer ${process.env.SORARE_API_KEY}`
     },
     body: JSON.stringify({ query, variables }),
   });
@@ -105,7 +105,7 @@ app.get('/test/:slug', async (req, res) => {
   }
 });
 
-// New: GET /test-mbappe route to fetch Kylian Mbappé data directly
+// GET /test-mbappe route
 app.get('/test-mbappe', async (req, res) => {
   try {
     const data = await fetchPlayerData('kylian-mbappe');
