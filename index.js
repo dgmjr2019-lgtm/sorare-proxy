@@ -6,6 +6,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Debug: confirm API key loaded
+console.log(process.env.SORARE_API_KEY ? 'API key loaded' : 'No API key found');
+
 async function fetchFromSorare(query, variables) {
   const response = await fetch('https://api.sorare.com/graphql', {
     method: 'POST',
@@ -55,15 +58,12 @@ async function fetchPlayerData(slug) {
   `;
 
   try {
-    // Try full query first
     return await fetchFromSorare(fullQuery, { slug });
   } catch (error) {
     if (error.status === 422) {
-      // If 422, try fallback simpler query
-      console.log(`Falling back to simpler query for slug: ${slug}`);
+      console.log(`422 error detected. Falling back to simpler query for slug: ${slug}`);
       return await fetchFromSorare(fallbackQuery, { slug });
     }
-    // Rethrow other errors
     throw error;
   }
 }
@@ -73,11 +73,15 @@ app.get('/', (req, res) => {
   res.send('Sorare Proxy API is running. Use /test/:slug to query player data.');
 });
 
-// POST /player endpoint
+// POST /player endpoint with slug validation
 app.post('/player', async (req, res) => {
   const { slug } = req.body;
+  if (!slug || typeof slug !== 'string' || slug.trim() === '') {
+    return res.status(400).json({ error: 'Invalid or missing slug in request body' });
+  }
+
   try {
-    const data = await fetchPlayerData(slug);
+    const data = await fetchPlayerData(slug.trim());
     res.json(data);
   } catch (error) {
     console.error('Server error:', error);
@@ -85,13 +89,29 @@ app.post('/player', async (req, res) => {
   }
 });
 
-// GET /test/:slug endpoint
+// GET /test/:slug endpoint with slug validation
 app.get('/test/:slug', async (req, res) => {
+  const slug = req.params.slug;
+  if (!slug || typeof slug !== 'string' || slug.trim() === '') {
+    return res.status(400).json({ error: 'Invalid or missing slug parameter' });
+  }
+
   try {
-    const data = await fetchPlayerData(req.params.slug);
+    const data = await fetchPlayerData(slug.trim());
     res.json(data);
   } catch (error) {
     console.error('Test endpoint error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// New: GET /test-mbappe route to fetch Kylian Mbappé data directly
+app.get('/test-mbappe', async (req, res) => {
+  try {
+    const data = await fetchPlayerData('kylian-mbappe');
+    res.json(data);
+  } catch (error) {
+    console.error('Test Mbappé endpoint error:', error);
     res.status(500).json({ error: error.message });
   }
 });
