@@ -1,7 +1,12 @@
 const express = require('express');
 const fetch = require('node-fetch');
 const cors = require('cors');
-
+const apiKey = process.env.SORARE_API_KEY;
+if (!apiKey) {
+  console.error('SORARE_API_KEY is NOT set!');
+} else {
+  console.log(`SORARE_API_KEY is set. Length: ${apiKey.length}. Starts with: ${apiKey.slice(0, 5)}...`);
+}
 const app = express();
 app.use(cors());
 app.use(express.json());
