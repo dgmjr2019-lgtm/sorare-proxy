@@ -24,22 +24,17 @@ app.post('/player', async (req, res) => {
       }
     }
   `;
-
-  try {
-    const response = await fetch('https://api.sorare.com/graphql', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, variables: { slug } })
-    });
-
-    const data = await response.json();
-    res.json(data);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Something went wrong' });
-  }
+const response = await fetch('https://api.sorare.com/graphql', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ query, variables: { slug } }),
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Proxy server running on port ${PORT}`));
+if (!response.ok) {
+  console.error('Sorare API error:', response.status, response.statusText);
+  return res.status(response.status).json({ error: 'Sorare API error' });
+}
+
+const data = await response.json();
+
+ 
